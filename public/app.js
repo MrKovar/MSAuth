@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, OAuthProvider, signInWithPopup } from  "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, OAuthProvider, signInWithPopup, GoogleAuthProvider } from  "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAFmC9o3tUxTRruk658AA8KGCIKG3FmKIg",
@@ -31,21 +31,24 @@ onAuthStateChanged(auth, user => {
 const whenSignedIn = document.getElementById('whenSignedIn');
 const whenSignedOut = document.getElementById('whenSignedOut');
 
-const signInBtn = document.getElementById('signInBtn');
+const signInBtnMicrosoft = document.getElementById('signInBtnMicrosoft');
+const signInBtnGoogle = document.getElementById('signInBtnGoogle');
+
 const signOutBtn = document.getElementById('signOutBtn');
 
 const userDetails = document.getElementById('userDetails');
 
+// MICROSOFT AUTHENTICATION ///////////////////////////////////////////////////////
 
-const provider = new OAuthProvider('microsoft.com');
-provider.setCustomParameters({
+const microsoft_provider = new OAuthProvider('microsoft.com');
+microsoft_provider.setCustomParameters({
     // Force re-consent.
     prompt: 'consent',
     // Target specific email with login hint.
     login_hint: 'user@firstadd.onmicrosoft.com'
   });
 
-signInBtn.onclick = () => signInWithPopup(auth, provider)
+signInBtnMicrosoft.onclick = () => signInWithPopup(auth, microsoft_provider)
 .then((result) => {
   // User is signed in.
   // IdP data available in result.additionalUserInfo.profile.
@@ -55,7 +58,7 @@ signInBtn.onclick = () => signInWithPopup(auth, provider)
   const accessToken = credential.accessToken;
   const idToken = credential.idToken;
 
-  console.log("successssssssssss")
+  console.log("successssssssssss msft")
   console.log(credential)
   console.log(accessToken)
   console.log(idToken)
@@ -63,8 +66,49 @@ signInBtn.onclick = () => signInWithPopup(auth, provider)
 })
 .catch((error) => {
   // Handle error.
-  console.log("lmao fail")
+  console.log("lmao fail msft")
   console.log(error)
 });
+
+
+// GOOGLE AUTHENTICATION ///////////////////////////////////////////////////////
+
+const google_provider = new GoogleAuthProvider();
+google_provider.setCustomParameters({
+    'login_hint': 'user@gmail.com'
+  });
+
+
+signInBtnGoogle.onclick = () => signInWithPopup(auth, google_provider)
+  .then((result) => {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    // The signed-in user info.
+    const user = result.user;
+    // ...
+
+    console.log("successssssssssss goog")
+    console.log(credential)
+    console.log(token)
+    console.log(user)
+
+  }).catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData.email;
+    // The AuthCredential type that was used.
+    const credential = GoogleAuthProvider.credentialFromError(error);
+    // ...
+
+    console.log("lmao fail goog")
+    console.log(errorCode)
+    console.log(errorMessage)
+    console.log(email)
+    console.log(credential)
+  });
+
 
 signOutBtn.onclick = () => auth.signOut();
